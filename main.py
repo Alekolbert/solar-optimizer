@@ -1,6 +1,7 @@
 import math
 import easygui
 import pandas as pd
+import sys
 
 class Application:
     def choose_file():
@@ -10,6 +11,9 @@ class Application:
     def choose_sheet():
         sheet_name = easygui.enterbox(msg = "Wpisz nazwe arkusza")
         return sheet_name
+    
+    def close():
+        sys.exit()
 
 
 class Excel_sheet:
@@ -76,7 +80,12 @@ class Weights:
 app = Application()
 
 path = app.choose_file()
+if(path == None):
+    app.close()
+
 sheet_name = app.choose_sheet()
+if(sheet_name == None):
+    app.close()
 
 excel = Excel_sheet(path, sheet_name)
 
