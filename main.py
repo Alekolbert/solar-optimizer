@@ -5,7 +5,7 @@ import sys
 
 class Application:
     def choose_file():
-        path = easygui.fileopenbox(msg = "Wybierz plik")
+        path = easygui.fileopenbox(msg = "Optimizer", title = 'sdf')
         return path
 
     def choose_sheet():
