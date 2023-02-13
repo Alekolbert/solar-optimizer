@@ -2,32 +2,72 @@ import math
 import easygui
 import pandas as pd
 import sys
+import tkinter as tk 
+
+
+def generate_excel(targets, weights, combinations):
+    return
+
+
+class Window():
+    def __init__(self):
+  
+        # Creating the tkinter Window
+        self.root = tk.Tk()
+        self.root.geometry("200x100")
+        self.sheet = ''
+  
+        # Button for closing
+        exit_button = tk.Button(self.root, text="Exit", command=self.Close)
+        exit_button.pack(pady=20)
+
+        self.entry = tk.Entry(self.root)
+        self.entry.pack()
+
+        self.root.mainloop()
+  
+    # Function for closing window
+    def Close(self):
+        self.sheet = self.entry.get()
+        self.root.destroy()
+
 
 class Application:
-    def choose_file():
-        path = easygui.fileopenbox(msg = "Optimizer", title = 'sdf')
+    def __init__(self, master):
+        self.master = master
+        self.sheet = ''
+
+    def choose_file_window(self):
+        self.master.withdraw()
+        path = tk.filedialog.askopenfilename()
         return path
 
-    def choose_sheet():
-        sheet_name = easygui.enterbox(msg = "Wpisz nazwe arkusza")
-        return sheet_name
-    
-    def close():
-        sys.exit()
+    def on_button(self, entry):
+        self.sheet = entry.get()
+        self.close()
+
+    def close(self):
+        self.master.destroy()
 
 
 class Excel_sheet:
     def __init__(self, path, sheet):
-        self.df = pd.read_excel(path, sheet_name=sheet)
+        df = pd.read_excel(path, sheet_name=sheet, header=None, index_col=False)
+        df['Result'] = df.apply(lambda row: row[row == 'V/H'].index.tolist(), axis=1)
+        a2 = df[df[0] == 'Cena zł/Konstrukcja'].index.item()
+        self.sheet = df.iloc[3:a2+1, 0:max(df['Result'][2])+1].reset_index(drop = True)
 
-    def get_weights():
-        return
+    def get_weights(self): 
+        return self.sheet.iloc[0, 2::].tolist()
 
-    def get_values():
-        return
+    def get_values(self):
+        return self.sheet.iloc[-1, 2::].tolist()
 
-    def get_targets():
-        return
+    def get_targets(self):
+        a1 = self.sheet[self.sheet[1] == 'rzedy'].index.item()
+        a2 = self.sheet[self.sheet[0] == 'Suma rzędów'].index.item()
+        return self.sheet.iloc[a1+1:a2, 1].tolist()
+
 
 class Combination:
     def __init__(self, combination):
@@ -75,23 +115,19 @@ class Weights:
                     if dp[i] > dp[i - self.weights[j]] + values[self.weights[j]]:
                         dp[i] = dp[i - self.weights[j]] + values[self.weights[j]]
                         best_combinations[i] = best_combinations[i - self.weights[j]] + [self.weights[j]]
-        return (best_combinations[-1], dp[-1])
+        return (best_combinations)
 
-app = Application()
+root = tk.Tk()
+app = Application(root)
+path = app.choose_file_window()
+print(path)
+app.close()
+app1 = Window()
 
-path = app.choose_file()
-if(path == None):
-    app.close()
 
-sheet_name = app.choose_sheet()
-if(sheet_name == None):
-    app.close()
+print(app1.sheet)
 
-excel = Excel_sheet(path, sheet_name)
 
-weights = excel.get_weights()
-values = excel.get_values()
-targets = excel.get_targets()
 
 
 
