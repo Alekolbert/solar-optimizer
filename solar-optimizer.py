@@ -1,13 +1,25 @@
 import math
-import easygui
 import pandas as pd
 import sys
 import tkinter as tk 
+from collections import Counter
+import numpy as np
+import openpyxl
+from tkinter import filedialog
 
-
-def generate_excel(targets, weights, combinations):
-    return
-
+def generate_excel(targets, weights, combinations, path, sheet_name):
+    workbook = openpyxl.load_workbook(path)
+    worksheet = workbook[sheet_name]
+    A = np.zeros((len(targets), len(weights)))
+    for j, target in enumerate(targets):
+        if isinstance(target, int):
+            comb_dict = Counter(combinations[target])
+        else:
+            continue
+        for i, weight in enumerate(weights):
+            if comb_dict[weight] != 0:
+                worksheet.cell(j+5, i+3).value = comb_dict[weight]
+    workbook.save(path)
 
 class Window():
     def __init__(self):
@@ -39,7 +51,7 @@ class Application:
 
     def choose_file_window(self):
         self.master.withdraw()
-        path = tk.filedialog.askopenfilename()
+        path = filedialog.askopenfilename()
         return path
 
     def on_button(self, entry):
@@ -117,24 +129,27 @@ class Weights:
                         best_combinations[i] = best_combinations[i - self.weights[j]] + [self.weights[j]]
         return (best_combinations)
 
-root = tk.Tk()
-app = Application(root)
-path = app.choose_file_window()
-print(path)
-app.close()
-app1 = Window()
+
+def main():
+    root = tk.Tk()
+    root.iconbitmap("solar-optimizer-icon.ico")
+    app = Application(root)
+    path = app.choose_file_window()
+    app.close()
+
+    data = Excel_sheet(path, "Kalkulator stoły")
+    weights = data.get_weights()
+    values = dict(zip(weights, data.get_values()))
+    targets = data.get_targets()
+
+    wgh = Weights(weights)
+    combinations = wgh.least_valuable(max(targets), values)
+
+    generate_excel(targets, weights, combinations, path, "Kalkulator stoły")
 
 
-print(app1.sheet)
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    try:
+        main()
+    except:
+        sys.exit()
